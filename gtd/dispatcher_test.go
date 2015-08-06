@@ -1,31 +1,41 @@
 package gtd
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
 
 func TestAdd(t *testing.T) {
 	// given
 	r := NewMemRepo()
-	d := &Dispatcher{Repo: r}
 
-	args := []string{"+", "@work", "#foo", "hello", "world"}
+	todo := &Todo{
+		Id: "0",
+		Meta: &Meta{
+			Context: "@work",
+			Tags:    []string{"#foo", "#bar"},
+		},
+		Subject: "Hello World",
+	}
+	req := &Request{
+		Action:  "+",
+		Context: todo.Meta.Context,
+		Tags:    todo.Meta.Tags,
+		Subject: todo.Subject,
+	}
 
 	// when
-	_, err := d.Dispatch(&Meta{}, args)
+	_, err := Dispatch(req, r)
 
 	// then
 
-	if err != nil {
-		t.Error(err)
-	}
-
-	if r.Get("0").Subject != "hello world" {
-		t.Errorf("got '%+v'", r.Get("0"))
-	}
+	assert.Nil(t, err)
+	assert.Equal(t, todo.String(), r.Get("0").String(), "should be equal")
 }
 func TestList(t *testing.T) {
 	// given
 	r := NewMemRepo()
-	d := &Dispatcher{Repo: r}
 
 	todo := &Todo{
 		Id: "0",
@@ -46,18 +56,35 @@ func TestList(t *testing.T) {
 	r.Save(todo)
 	r.Save(todo2)
 
-	args := []string{"list", "@work"}
-
 	// when
-	out, err := d.Dispatch(&Meta{}, args)
+	out, err := Dispatch(&Request{Action: "l", Context: "@work"}, r)
 
 	// then
 
-	if err != nil {
-		t.Error(err)
+	assert.Nil(t, err)
+	assert.Equal(t, todo.String()+"\n", out)
+}
+func TestClose(t *testing.T) {
+	// given
+	r := NewMemRepo()
+
+	todo := &Todo{
+		Id:     "0",
+		Status: StatusOpen,
+	}
+	r.Save(todo)
+
+	req := &Request{
+		Action: "-",
+		Id:     "0",
 	}
 
-	if (todo.String() + "\n") != out {
-		t.Errorf("got '%s'", out)
-	}
+	// when
+	out, err := Dispatch(req, r)
+
+	// then
+
+	assert.Nil(t, err)
+	assert.Equal(t, "0", out, "should output deleted id")
+	assert.Equal(t, StatusClosed, r.Get("0").Status, "Status should be closed")
 }

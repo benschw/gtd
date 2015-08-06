@@ -33,10 +33,15 @@ func main() {
 		args = append(args, flag.Arg(i))
 	}
 
-	d := &gtd.Dispatcher{}
-	out, err := d.Dispatch(&gtd.Meta{Context: "@global"}, args)
+	r, err := gtd.ParseArgs(args, "@global")
 	if err != nil {
 		log.Println(err)
+		return
+	}
+	out, err := gtd.Dispatch(r, gtd.NewGhRepo())
+	if err != nil {
+		log.Println(err)
+		return
 	}
 	fmt.Print(out)
 

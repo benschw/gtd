@@ -14,7 +14,6 @@ type Todo struct {
 	Id      string
 	Meta    *Meta
 	Subject string
-	Body    string
 	Status  string
 }
 
@@ -25,6 +24,16 @@ func (t *Todo) String() string {
 		t.Meta.String(),
 		t.Subject,
 	)
+}
+
+type TodoCollection []*Todo
+
+func (t TodoCollection) String() string {
+	var out string
+	for _, todo := range t {
+		out = fmt.Sprintf("%s%s\n", out, todo)
+	}
+	return out
 }
 
 type Meta struct {
