@@ -5,8 +5,7 @@ import "strings"
 func ParseArgs(args []string, defaultCtx string) (*Request, error) {
 	r := &Request{}
 
-	action, args := extractAction(args)
-	r.Action = action
+	r.Action, args := extractAction(args)
 	if r.Action == ActionNew {
 		r.Context = defaultCtx
 	}
@@ -23,15 +22,17 @@ func ParseArgs(args []string, defaultCtx string) (*Request, error) {
 }
 
 func extractAction(args []string) (string, []string) {
-	switch args[0] {
-	case ActionNew:
-		return ActionNew, args[1:]
-	case ActionDone:
-		return ActionDone, args[1:]
-	case ActionList:
-		return ActionList, args[1:]
+	if len(args) > 0 {
+		switch args[0] {
+		case ActionNew:
+			return ActionNew, args[1:]
+		case ActionDone:
+			return ActionDone, args[1:]
+		case ActionList:
+			return ActionList, args[1:]
+		}
 	}
-	return ActionNew, args
+	return ActionList, args
 }
 
 func extractMeta(args []string) (string, []string, []string) {

@@ -13,17 +13,17 @@ type Repo interface {
 	Query(*Meta) []*Todo
 }
 
-func NewGhRepo() *GhRepo {
+func NewGhRepo(user string, repo string, token string) *GhRepo {
 	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: ""},
+		&oauth2.Token{AccessToken: token},
 	)
 	tc := oauth2.NewClient(oauth2.NoContext, ts)
 
 	client := github.NewClient(tc)
 	return &GhRepo{
 		Client: client,
-		Owner:  "benschw",
-		Repo:   "ghgtd",
+		Owner:  user,
+		Repo:   repo,
 	}
 }
 
