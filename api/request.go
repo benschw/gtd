@@ -1,4 +1,4 @@
-package gtd
+package api
 
 type Request struct {
 	Action       string

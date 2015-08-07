@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/benschw/ghgtd/gtd"
+	"github.com/benschw/gtd/api"
 )
 
 func envHelp() {
@@ -60,16 +60,15 @@ func main() {
 	flag.Parse()
 	args := flag.Args()
 
-	r, err := gtd.ParseArgs(args, defaultContext)
+	r, err := api.ParseArgs(args, defaultContext)
 	if err != nil {
 		log.Println(err)
 		os.Exit(2)
 	}
-	out, err := gtd.Dispatch(r, gtd.NewGhRepo(user, repo, token))
+	out, err := api.Dispatch(r, api.NewGhRepo(user, repo, token))
 	if err != nil {
 		log.Println(err)
 		os.Exit(3)
 	}
 	fmt.Print(out)
-
 }

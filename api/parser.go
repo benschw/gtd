@@ -1,11 +1,11 @@
-package gtd
+package api
 
 import "strings"
 
 func ParseArgs(args []string, defaultCtx string) (*Request, error) {
 	r := &Request{}
 
-	r.Action, args := extractAction(args)
+	r.Action, args = extractAction(args)
 	if r.Action == ActionNew {
 		r.Context = defaultCtx
 	}
