@@ -7,12 +7,12 @@
 
 ### Actions
 
-`a` new todo
+`a` add a todo
 
 	gtd a @work \#foo Hello World
 	1
 
-`c` mark todo as done
+`c` mark todo as closed
 
 	gtd c 1
 	1
