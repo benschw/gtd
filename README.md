@@ -7,22 +7,22 @@
 
 ### Actions
 
-- `a` new todo
+`a` new todo
 
 	gtd a @work \#foo Hello World
 	1
 
-- `c` mark todo as done
+`c` mark todo as done
 
 	gtd c 1
 	1
 
-- `l` list todos (filtered by _meta_, `l` is optional
+`l` list todos (filtered by _meta_, `l` is optional
 
 	gtd @work
 	# list of all @work todos
 
-- `m` modify todo
+`m` modify todo
 
 	gtd m 1 @home -\#foo #bar
 	# set context to @home, remove #foo tag, add #bar tag
