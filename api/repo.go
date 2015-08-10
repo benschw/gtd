@@ -9,8 +9,8 @@ import (
 
 type Repo interface {
 	Save(*Todo) error
-	Get(string) *Todo
-	Query(*Meta) []*Todo
+	Get(string) (*Todo, error)
+	Query(*Meta) (TodoCollection, error)
 }
 
 func NewGhRepo(user string, repo string, token string) *GhRepo {
@@ -66,34 +66,39 @@ func (r *GhRepo) Save(todo *Todo) error {
 	return nil
 }
 
-func (r *GhRepo) Get(id string) *Todo {
+func (r *GhRepo) Get(id string) (*Todo, error) {
 	idInt, err := strconv.Atoi(id)
 	if err != nil {
-		return nil
+		return nil, err
 	}
+
 	issue, _, err := r.Client.Issues.Get(r.Owner, r.Repo, idInt)
 	if err != nil {
-		return nil
+		return nil, err
 	}
-	return parseTodoFromIssue(*issue)
+
+	todo := parseTodoFromIssue(*issue)
+	return todo, nil
 }
 
-func (r *GhRepo) Query(meta *Meta) []*Todo {
+func (r *GhRepo) Query(meta *Meta) (TodoCollection, error) {
 	todos := make([]*Todo, 0)
 
-	labels := append(meta.Tags, meta.Context)
-	issues, _, err := r.Client.Issues.ListByRepo(r.Owner, r.Repo, &github.IssueListByRepoOptions{
-		Labels: labels,
-	})
+	labelStrings := append(meta.Tags, meta.Context)
+	labels := &github.IssueListByRepoOptions{
+		Labels: labelStrings,
+	}
+	issues, _, err := r.Client.Issues.ListByRepo(r.Owner, r.Repo, labels)
 	if err != nil {
-		return todos
+		return nil, err
 	}
 
 	for _, issue := range issues {
 		todos = append(todos, parseTodoFromIssue(issue))
 	}
 
-	return todos
+	var c TodoCollection = todos
+	return c, nil
 }
 func parseTodoFromIssue(issue github.Issue) *Todo {
 	meta := parseMetaFromIssue(issue)

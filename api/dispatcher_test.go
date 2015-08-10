@@ -19,7 +19,7 @@ func TestAdd(t *testing.T) {
 		Subject: "Hello World",
 	}
 	req := &Request{
-		Action:  "+",
+		Action:  ActionNew,
 		Context: todo.Meta.Context,
 		Tags:    todo.Meta.Tags,
 		Subject: todo.Subject,
@@ -29,9 +29,9 @@ func TestAdd(t *testing.T) {
 	_, err := Dispatch(req, r)
 
 	// then
-
+	found, _ := r.Get("0")
 	assert.Nil(t, err)
-	assert.Equal(t, todo.String(), r.Get("0").String(), "should be equal")
+	assert.Equal(t, todo.String(), found.String(), "should be equal")
 }
 func TestList(t *testing.T) {
 	// given
@@ -57,7 +57,7 @@ func TestList(t *testing.T) {
 	r.Save(todo2)
 
 	// when
-	out, err := Dispatch(&Request{Action: "l", Context: "@work"}, r)
+	out, err := Dispatch(&Request{Action: ActionList, Context: "@work"}, r)
 
 	// then
 
@@ -75,7 +75,7 @@ func TestClose(t *testing.T) {
 	r.Save(todo)
 
 	req := &Request{
-		Action: "-",
+		Action: ActionClose,
 		Id:     "0",
 	}
 
@@ -84,7 +84,8 @@ func TestClose(t *testing.T) {
 
 	// then
 
+	found, _ := r.Get("0")
 	assert.Nil(t, err)
-	assert.Equal(t, "0", out, "should output deleted id")
-	assert.Equal(t, StatusClosed, r.Get("0").Status, "Status should be closed")
+	assert.Equal(t, found.String()+"\n", out, "Should output the deleted todo")
+	assert.Equal(t, StatusClosed, found.Status, "Status should be closed")
 }

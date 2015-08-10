@@ -18,10 +18,14 @@ type Todo struct {
 }
 
 func (t *Todo) String() string {
+	metaStr := ""
+	if t.Meta != nil {
+		metaStr = t.Meta.String()
+	}
 	return fmt.Sprintf(
 		"[%s] %s| %s",
 		t.Id,
-		t.Meta.String(),
+		metaStr,
 		t.Subject,
 	)
 }
@@ -41,10 +45,31 @@ type Meta struct {
 	Tags    []string
 }
 
+func (m *Meta) AddTags(tags []string) {
+	m.Tags = append(m.Tags, tags...)
+}
+func (m *Meta) RemoveTags(tags []string) {
+	n := make([]string, 0)
+	for _, tag := range m.Tags {
+		if !stringInSlice(tag, tags) {
+			n = append(n, tag)
+		}
+	}
+	m.Tags = n
+}
+
 func (m *Meta) String() string {
-	return fmt.Sprintf(
-		"%s %s ",
-		m.Context,
-		strings.Join(m.Tags, " "),
-	)
+	tagStr := ""
+	if m.Tags != nil {
+		tagStr = strings.Join(m.Tags, " ") + " "
+	}
+	return m.Context + " " + tagStr
+}
+func stringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
 }

@@ -2,7 +2,6 @@ package api
 
 import (
 	"fmt"
-	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -11,17 +10,18 @@ import (
 func TestParseArgs(t *testing.T) {
 	// given
 	expected := &Request{
-		Action:  "+",
+		Action:  "a",
 		Context: "@work",
 		Tags:    []string{"#foo", "#bar"},
 		Subject: "Hello World",
 	}
-	args := []string{"+", "@work", "#foo", "#bar", "Hello", "World"}
+	args := []string{"a", "@work", "#foo", "#bar", "Hello", "World"}
 
 	// when
 	r, err := ParseArgs(args, "@foo")
 
 	// then
 	assert.Nil(t, err)
-	assert.True(t, reflect.DeepEqual(expected, r), fmt.Sprintf("%+v != %+v", expected, r))
+	assert.Equal(t, fmt.Sprintf("%+v", expected), fmt.Sprintf("%+v", r), "parsed request doesn't match")
+	//assert.True(t, reflect.DeepEqual(expected, r), fmt.Sprintf("\n   %+v\n!= %+v", expected, r))
 }
