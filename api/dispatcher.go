@@ -31,7 +31,7 @@ func (h *Handler) Create(r *Request) (string, error) {
 		Status:  StatusOpen,
 	}
 	err := h.Repo.Save(todo)
-	return todo.Id + "\n", err
+	return todo.String() + "\n", err
 }
 func (h Handler) List(r *Request) (string, error) {
 	meta := &Meta{Context: r.Context, Tags: r.Tags}
@@ -51,24 +51,17 @@ func (h Handler) Edit(r *Request) (string, error) {
 	if r.Context != "" {
 		todo.Meta.Context = r.Context
 	}
-	for _, tag := range r.Tags {
-		todo.Meta.Tags = append(todo.Meta.Tags, tag)
-	}
+
+	tags := append(todo.Meta.Tags, r.Tags...)
 	n := make([]string, 0)
-	for _, tag := range todo.Meta.Tags {
-		found := false
-		for _, rem := range r.TagsToRemove {
-			if tag == rem {
-				found = true
-			}
-		}
-		if !found {
+	for _, tag := range tags {
+		if !stringInSlice(tag, r.TagsToRemove) {
 			n = append(n, tag)
 		}
 	}
 	todo.Meta.Tags = n
 	err := h.Repo.Save(todo)
-	return todo.Id, err
+	return todo.String() + "\n", err
 }
 func (h *Handler) Close(r *Request) (string, error) {
 	todo := h.Repo.Get(r.Id)
@@ -76,6 +69,15 @@ func (h *Handler) Close(r *Request) (string, error) {
 		return "", fmt.Errorf("Unable to find todo '%s'", r.Id)
 	}
 	todo.Status = StatusClosed
-	h.Repo.Save(todo)
-	return todo.Id, nil
+	err := h.Repo.Save(todo)
+	return todo.String() + "\n", err
+}
+
+func stringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
 }

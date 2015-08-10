@@ -3,17 +3,17 @@ package api
 import "strings"
 
 const (
-	ContextPrefix = "@"
-	TagPrefix     = "#"
-	ActionNew     = "a"
-	ActionClose   = "c"
-	ActionEdit    = "m"
-	ActionList    = "l"
+	ContextPrefix   = "@"
+	TagPrefix       = "#"
+	TagRemovePrefix = "-#"
+	ActionNew       = "a"
+	ActionClose     = "c"
+	ActionEdit      = "m"
+	ActionList      = "l"
 )
 
 func ParseArgs(args []string, defaultCtx string) (*Request, error) {
 	r := &Request{}
-
 	r.Action, args = extractAction(args)
 	if r.Action == ActionNew {
 		r.Context = defaultCtx
@@ -56,23 +56,24 @@ func extractMeta(args []string) (string, []string, []string, []string) {
 	toRem := make([]string, 0)
 
 	metaComplete := false
-	rem := make([]string, 0)
-	for i := 0; i < len(args); i++ {
+	remaining := make([]string, 0)
+	for _, arg := range args {
 		if !metaComplete {
-			if strings.HasPrefix(args[i], ContextPrefix) {
-				context = args[i]
-			} else if strings.HasPrefix(args[i], TagPrefix) {
-				tags = append(tags, args[i])
-			} else if strings.HasPrefix(args[i], "-"+TagPrefix) {
-				toRem = append(toRem, args[i])
-			} else {
+			switch true {
+			case strings.HasPrefix(arg, ContextPrefix):
+				context = arg
+			case strings.HasPrefix(arg, TagPrefix):
+				tags = append(tags, arg)
+			case strings.HasPrefix(arg, TagRemovePrefix):
+				toRem = append(toRem, arg[1:])
+			default:
 				metaComplete = true
 			}
 		}
 		if metaComplete {
-			rem = append(rem, args[i])
+			remaining = append(remaining, arg)
 		}
 	}
 
-	return context, tags, toRem, rem
+	return context, tags, toRem, remaining
 }

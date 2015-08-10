@@ -3,10 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/benschw/gtd/api"
+	"github.com/golang/glog"
 )
 
 func envHelp() {
@@ -60,14 +60,17 @@ func main() {
 	flag.Parse()
 	args := flag.Args()
 
+	glog.Info("Args", args)
 	r, err := api.ParseArgs(args, defaultContext)
 	if err != nil {
-		log.Println(err)
+		glog.Error(err)
 		os.Exit(2)
 	}
+	glog.Info("Request", r)
+
 	out, err := api.Dispatch(r, api.NewGhRepo(user, repo, token))
 	if err != nil {
-		log.Println(err)
+		glog.Error(err)
 		os.Exit(3)
 	}
 	fmt.Print(out)

@@ -1,7 +1,6 @@
 package api
 
 import (
-	"log"
 	"strconv"
 
 	"github.com/google/go-github/github"
@@ -59,7 +58,6 @@ func (r *GhRepo) Save(todo *Todo) error {
 			Labels: &labels,
 			State:  &todo.Status,
 		}
-		log.Printf("%+v", req)
 		_, _, err = r.Client.Issues.Edit(r.Owner, r.Repo, idInt, req)
 		if err != nil {
 			return err
