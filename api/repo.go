@@ -1,6 +1,7 @@
 package api
 
 import (
+	"log"
 	"strconv"
 
 	"github.com/google/go-github/github"
@@ -36,21 +37,47 @@ type GhRepo struct {
 func (r *GhRepo) Save(todo *Todo) error {
 	if todo.Id == "" {
 		labels := append(todo.Meta.Tags, todo.Meta.Context)
-		issue, _, err := r.Client.Issues.Create(r.Owner, r.Repo, &github.IssueRequest{
+
+		req := &github.IssueRequest{
 			Title:  &todo.Subject,
 			Labels: &labels,
-		})
-
+		}
+		issue, _, err := r.Client.Issues.Create(r.Owner, r.Repo, req)
 		if err != nil {
 			return err
 		}
 		todo.Id = strconv.Itoa(*issue.Number)
+	} else {
+		idInt, err := strconv.Atoi(todo.Id)
+		if err != nil {
+			return err
+		}
+		labels := append(todo.Meta.Tags, todo.Meta.Context)
+
+		req := &github.IssueRequest{
+			Title:  &todo.Subject,
+			Labels: &labels,
+			State:  &todo.Status,
+		}
+		log.Printf("%+v", req)
+		_, _, err = r.Client.Issues.Edit(r.Owner, r.Repo, idInt, req)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
 
 func (r *GhRepo) Get(id string) *Todo {
-	return nil
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		return nil
+	}
+	issue, _, err := r.Client.Issues.Get(r.Owner, r.Repo, idInt)
+	if err != nil {
+		return nil
+	}
+	return parseTodoFromIssue(*issue)
 }
 
 func (r *GhRepo) Query(meta *Meta) []*Todo {
@@ -76,6 +103,7 @@ func parseTodoFromIssue(issue github.Issue) *Todo {
 	todo := &Todo{
 		Id:      strconv.Itoa(*issue.Number),
 		Subject: *issue.Title,
+		Status:  *issue.State,
 		Meta:    meta,
 	}
 	return todo

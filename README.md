@@ -7,22 +7,22 @@
 
 ### Actions
 
-- + new todo
+- `a` new todo
 
-	gtd + @work \#foo Hello World
+	gtd a @work \#foo Hello World
 	1
 
-- - mark todo as done
+- `c` mark todo as done
 
-	gtd - 1
+	gtd c 1
 	1
 
-- l list todos (filtered by _meta_)
+- `l` list todos (filtered by _meta_, `l` is optional
 
-	gtd l @work
+	gtd @work
 	# list of all @work todos
 
-- m modify todo
+- `m` modify todo
 
 	gtd m 1 @home -\#foo #bar
 	# set context to @home, remove #foo tag, add #bar tag
@@ -32,7 +32,7 @@
 
 ### meta
 
-- @CONTEXT prefix with @ to set context (there can only be one context, if many are supplied, only one will be used)
-- @TAG prefix with # to assign a tag to the todo. many can be used
-	- when modifying a todo, -#tag will remove a tag if it exists
+- `@CONTEXT` prefix with `@` to set context (there can only be one context, if many are supplied, only one will be used)
+- `#TAG` prefix with `#` to assign a tag to the todo. many can be used
+	- when modifying a todo, `-#tag` will remove a tag if it exists
 

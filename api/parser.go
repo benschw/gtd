@@ -2,6 +2,15 @@ package api
 
 import "strings"
 
+const (
+	ContextPrefix = "@"
+	TagPrefix     = "#"
+	ActionNew     = "a"
+	ActionClose   = "c"
+	ActionEdit    = "m"
+	ActionList    = "l"
+)
+
 func ParseArgs(args []string, defaultCtx string) (*Request, error) {
 	r := &Request{}
 
@@ -9,13 +18,17 @@ func ParseArgs(args []string, defaultCtx string) (*Request, error) {
 	if r.Action == ActionNew {
 		r.Context = defaultCtx
 	}
+	if r.Action == ActionEdit || r.Action == ActionClose {
+		r.Id = args[0]
+		args = args[1:]
+	}
 
-	context, tags, args := extractMeta(args)
+	context, tags, toRem, args := extractMeta(args)
 	if context != "" {
 		r.Context = context
 	}
 	r.Tags = tags
-
+	r.TagsToRemove = toRem
 	r.Subject = strings.Join(args, " ")
 
 	return r, nil
@@ -26,8 +39,10 @@ func extractAction(args []string) (string, []string) {
 		switch args[0] {
 		case ActionNew:
 			return ActionNew, args[1:]
-		case ActionDone:
-			return ActionDone, args[1:]
+		case ActionClose:
+			return ActionClose, args[1:]
+		case ActionEdit:
+			return ActionEdit, args[1:]
 		case ActionList:
 			return ActionList, args[1:]
 		}
@@ -35,9 +50,10 @@ func extractAction(args []string) (string, []string) {
 	return ActionList, args
 }
 
-func extractMeta(args []string) (string, []string, []string) {
+func extractMeta(args []string) (string, []string, []string, []string) {
 	var context string
 	tags := make([]string, 0)
+	toRem := make([]string, 0)
 
 	metaComplete := false
 	rem := make([]string, 0)
@@ -47,6 +63,8 @@ func extractMeta(args []string) (string, []string, []string) {
 				context = args[i]
 			} else if strings.HasPrefix(args[i], TagPrefix) {
 				tags = append(tags, args[i])
+			} else if strings.HasPrefix(args[i], "-"+TagPrefix) {
+				toRem = append(toRem, args[i])
 			} else {
 				metaComplete = true
 			}
@@ -56,5 +74,5 @@ func extractMeta(args []string) (string, []string, []string) {
 		}
 	}
 
-	return context, tags, rem
+	return context, tags, toRem, rem
 }
