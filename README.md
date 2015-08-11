@@ -1,6 +1,27 @@
 
 
-	
+## Configure
+
+Configure with ENV variables
+
+### Set default `Context`
+
+	export GTD_CONTEXT=@work
+
+
+### Configure storage backend
+
+#### Github Issues Backend
+configure app to store todos as github issues by configuring
+an access token and repo to store to
+
+	export GTD_REPO=ghissues
+	export GTD_GH_TOKEN=XXXXXXX
+	export GTD_GH_USER=benschw
+	export GTD_GH_REPO=gtd
+
+
+
 ## Usage
 
 	gtd action [id] [meta[,meta[,...]]] [subject]

@@ -4,8 +4,8 @@ import "fmt"
 
 type Action func(*Request) (string, error)
 
-func Dispatch(req *Request, cfg *Config) (string, error) {
-	h := &Handler{Repo: NewGhRepo(cfg)}
+func Dispatch(req *Request, repo Repo) (string, error) {
+	h := &Handler{Repo: repo}
 
 	handlers := map[string]Action{
 		ActionNew:   h.Create,
