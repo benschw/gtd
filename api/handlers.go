@@ -6,6 +6,7 @@ type Handler struct {
 	Repo Repo
 }
 
+// Handle creating a todo
 func (h *Handler) Create(r *Request) (string, error) {
 	if r.Subject == "" {
 		return "", fmt.Errorf("Entry Body cannot be blank")
@@ -21,12 +22,16 @@ func (h *Handler) Create(r *Request) (string, error) {
 	err := h.Repo.Save(todo)
 	return todo.String() + "\n", err
 }
+
+// Handle listing/filtering todos
 func (h Handler) List(r *Request) (string, error) {
 	meta := &Meta{Context: r.Context, Tags: r.Tags}
 	todos, err := h.Repo.Query(meta)
 
 	return todos.String(), err
 }
+
+// Handle modifying a todo
 func (h Handler) Edit(r *Request) (string, error) {
 	todo, err := h.Repo.Get(r.Id)
 	if err != nil {
@@ -47,6 +52,8 @@ func (h Handler) Edit(r *Request) (string, error) {
 	err = h.Repo.Save(todo)
 	return todo.String() + "\n", err
 }
+
+// Handle closing a todo
 func (h *Handler) Close(r *Request) (string, error) {
 	todo, err := h.Repo.Get(r.Id)
 	if err != nil {
